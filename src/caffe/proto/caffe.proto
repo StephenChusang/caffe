@@ -403,7 +403,38 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+  // Additional parameters
+  optional ROIPoolingParameter roi_pooling_param = 147;
+  optional SmoothL1LossParameter smooth_l1_loss_param = 148;
+  optional PSROIPoolingParameter psroi_pooling_param = 149;
 }
+
+
+// Additional message parameters
+message PSROIPoolingParameter {
+   required float spatial_scale = 1; 
+   required int32 output_dim = 2; // output channel number
+   required int32 group_size = 3; // number of groups to encode position-sensitive score maps
+ }
+
+// Message that stores parameters used by ROIPoolingLayer
+message ROIPoolingParameter {
+  // Pad, kernel size, and stride are all given as a single value for equal
+  // dimensions in height and width or as Y, X pairs.
+  optional uint32 pooled_h = 1 [default = 0]; // The pooled output height
+  optional uint32 pooled_w = 2 [default = 0]; // The pooled output width
+  // Multiplicative spatial scale factor to translate ROI coords from their
+  // input scale to the scale used when pooling
+  optional float spatial_scale = 3 [default = 1];
+}
+
+message SmoothL1LossParameter {
+  // SmoothL1Loss(x) =
+  //   0.5 * (sigma * x) ** 2    -- if x < 1.0 / sigma / sigma
+  //   |x| - 0.5 / sigma / sigma -- otherwise
+  optional float sigma = 1 [default = 1];
+}
+
 
 // Message that stores parameters used to apply transformation
 // to the data layer's data
@@ -447,6 +478,8 @@ message LossParameter {
     BATCH_SIZE = 2;
     // Do not normalize the loss.
     NONE = 3;
+    // Divide by pre-fixed normalizer
+    PRE_FIXED = 4;
   }
   // For historical reasons, the default normalization for
   // SigmoidCrossEntropyLoss is BATCH_SIZE and *not* VALID.
@@ -455,6 +488,8 @@ message LossParameter {
   // is not specified, then setting this to false will be equivalent to
   // normalization = BATCH_SIZE to be consistent with previous behavior.
   optional bool normalize = 2;
+  //pre-fixed normalizer
+  optional float pre_fixed_normalizer = 4 [default = 1];
 }
 
 // Messages that store parameters used by individual layer types follow, in
